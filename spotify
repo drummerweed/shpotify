@@ -33,6 +33,7 @@ if ! [[ -f "${USER_CONFIG_FILE}" ]]; then
     echo -e "${USER_CONFIG_DEFAULTS}" > "${USER_CONFIG_FILE}";
 fi
 source "${USER_CONFIG_FILE}";
+headers=(-H "Accept application/json" -H "Authorization: Bearer ${SPOTIFY_ACCESS_TOKEN}" )
 
 showAPIHelp() {
     echo;
@@ -172,28 +173,28 @@ getAccessToken() {
     )
 }
 
-getRefreshToken() {
-    port=8082
-    redirect_uri=http%3A%2F%2Flocalhost%3A$port%2F
-    auth_endpoint=https://accounts.spotify.com/authorize/?response_type=code\&client_id=$CLIENT_ID\&redirect_uri=$redirect_uri
-    scopes="playlist-modify-private"
-    encoded_scopes=$(echo $scopes| tr ' ' '%' | sed s/%/%20/g)
-    auth_endpoint=$auth_endpoint\&scope=$encoded_scopes
-    open $auth_endpoint
-    response=$(echo "HTTP/1.1 200 OK\nAccess-Control-Allow-Origin:*\nContent-Length:65\n\n<html><script>open(location, '_self').close();</script></html>\n" | nc -l -c $port)
-    code=$(echo "$response" | grep GET | cut -d' ' -f 2 | cut -d'=' -f 2)
-    response=$(curl -s https://accounts.spotify.com/api/token \
-        -H "Content-Type:application/x-www-form-urlencoded" \
-        -H "Authorization: Basic $(echo $CLIENT_ID:$CLIENT_SECRET | base64 | sed 's/K$/=/')" \
-        -d "grant_type=authorization_code&code=$code&redirect_uri=http%3A%2F%2Flocalhost%3A$port%2F")
-    SPOTIFY_REFRESH_TOKEN=$( \
-        printf "${response}" \
-        | grep -E -o '"access_token":".*",' \
-        | sed 's/"access_token"://g' \
-        | sed 's/"//g' \
-        | sed 's/,.*//g' \
-    )
-}
+# getRefreshToken() {
+#     port=8082
+#     redirect_uri=http%3A%2F%2Flocalhost%3A$port%2F
+#     auth_endpoint=https://accounts.spotify.com/authorize/?response_type=code\&client_id=$CLIENT_ID\&redirect_uri=$redirect_uri
+#     scopes="playlist-modify-private"
+#     encoded_scopes=$(echo $scopes| tr ' ' '%' | sed s/%/%20/g)
+#     auth_endpoint=$auth_endpoint\&scope=$encoded_scopes
+#     open $auth_endpoint
+#     response=$(echo "HTTP/1.1 200 OK\nAccess-Control-Allow-Origin:*\nContent-Length:65\n\n<html><script>open(location, '_self').close();</script></html>\n" | nc -l -c $port)
+#     code=$(echo "$response" | grep GET | cut -d' ' -f 2 | cut -d'=' -f 2)
+#     response=$(curl -s https://accounts.spotify.com/api/token \
+#         -H "Content-Type:application/x-www-form-urlencoded" \
+#         -H "Authorization: Basic $(echo $CLIENT_ID:$CLIENT_SECRET | base64 | sed 's/K$/=/')" \
+#         -d "grant_type=authorization_code&code=$code&redirect_uri=http%3A%2F%2Flocalhost%3A$port%2F")
+#     SPOTIFY_REFRESH_TOKEN=$( \
+#         printf "${response}" \
+#         | grep -E -o '"access_token":".*",' \
+#         | sed 's/"access_token"://g' \
+#         | sed 's/"//g' \
+#         | sed 's/,.*//g' \
+#     )
+# }
 
 if [ $# = 0 ]; then
     cecho "OK"
@@ -467,14 +468,17 @@ while [ $# -gt 0 ]; do
         #         string="$2"
         #         track_id=${string#"<"}
         #         track_id=${string2%">"}
-        #         getRefreshToken;
-
-        #         curl -X "POST" "https://api.spotify.com/v1/playlists/"$playlist_id"/tracks?&uris="$track_id \
-        #         -H "Accept: application/json" -H "Content-Type: application/json" \
-        #         -H "Authorization: Bearer "$SPOTIFY_REFRESH_TOKEN
-
-        #     fi
-        #     break;;
+        # 
+        #     getRefreshToken;
+        #      
+        #     curl -s -X POST "https://api.spotify.com/v1/users/drummerweed/playlists/${playlist_id}/tracks?uris=$track_id" "${headers[@]}"
+        # 
+        #     # curl -X "POST" "https://api.spotify.com/v1/playlists/"$playlist_id"/tracks?&uris="$track_id \
+        #     # -H "Accept: application/json" -H "Content-Type: application/json" \
+        #     # -H "Authorization: Bearer "$SPOTIFY_ACCESS_TOKEN
+        # 
+        # fi
+        # break;;
         # "test"  )
         #     cecho "This is a test"
         #     break;;
