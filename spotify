@@ -455,27 +455,29 @@ while [ $# -gt 0 ]; do
             cecho "Adjusting Spotify play position."
             osascript -e "tell application \"Spotify\" to set player position to $2";
             break;;
+        
+        # Using the JukeBox app to add songs to the playlist
+        # 
+        # "add"    ) cecho "Adding your song to the Maestro playlist.";
+        #     if [ -z "$2" ]; then
+        #         cecho "Please provide a song to add"
+        #     else
+        #         cecho "You provided a song - "$2
+        #         playlist_id="5xdS7gI6C5KpKm4LHVKaUZ"; #Patrick's personal Maestro playlist
+        #         string="$2"
+        #         track_id=${string#"<"}
+        #         track_id=${string2%">"}
+        #         getRefreshToken;
 
-        "add"    ) cecho "Adding your song to the Maestro playlist.";
-            if [ -z "$2" ]; then
-                cecho "Please provide a song to add"
-            else
-                cecho "You provided a song - "$2
-                playlist_id="5xdS7gI6C5KpKm4LHVKaUZ"; #Patrick's personal Maestro playlist
-                string="$2"
-                track_id=${string#"<"}
-                track_id=${string2%">"}
-                getRefreshToken;
+        #         curl -X "POST" "https://api.spotify.com/v1/playlists/"$playlist_id"/tracks?&uris="$track_id \
+        #         -H "Accept: application/json" -H "Content-Type: application/json" \
+        #         -H "Authorization: Bearer "$SPOTIFY_REFRESH_TOKEN
 
-                curl -X "POST" "https://api.spotify.com/v1/playlists/"$playlist_id"/tracks?&uris="$track_id \
-                -H "Accept: application/json" -H "Content-Type: application/json" \
-                -H "Authorization: Bearer "$SPOTIFY_REFRESH_TOKEN
-
-            fi
-            break;;
-        "test"  )
-            cecho "This is a test"
-            break;;
+        #     fi
+        #     break;;
+        # "test"  )
+        #     cecho "This is a test"
+        #     break;;
 
         "help" | * )
             showHelp;
